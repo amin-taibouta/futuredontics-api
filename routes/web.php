@@ -55,7 +55,7 @@ Route::get('/ping', function(Request $request) {
     */
 
     //fetch date
-    $return = DB::select("call dbo.DTP_ProcessCall('99999')");
+    $return = ""; //DB::select("call dbo.DTP_ProcessCall('99999')");
     //log the request
     Log::info("API Response", [$return]);
     //return the data
