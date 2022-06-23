@@ -56,7 +56,7 @@ Route::get('/ping', function(Request $request) {
 
     //fetch date
     $return = DB::select(
-        DB::raw("exec dbo.DTP_ProcessCall @zipcode = :zip", [':zip' => 99999])
+        DB::raw("exec dbo.DTP_ProcessCall ?", [ 99999])
     );
 
     //log the request
