@@ -60,6 +60,7 @@ Route::get('/ping', function(Request $request) {
     Log::info("API Response", [$return]);
     //return the data
     return response()->json([
+        'Scott' => "good job!",
         'response' => $return
     ]);
 });
