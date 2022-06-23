@@ -61,7 +61,7 @@ Route::get('/ping', function(Request $request) {
         ]);*/
     //fetch date
     $return = DB::select(
-        DB::raw("exec dbo.DTP_ProcessCall @zipcode = '91324'")
+        DB::raw("SET ANSI_NULLS ON; exec dbo.DTP_ProcessCall @zipcode = '91324'")
     );
     //log the request
     Log::info("API Response", [$return]);
