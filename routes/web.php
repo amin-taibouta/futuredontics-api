@@ -55,7 +55,7 @@ Route::get('/ping', function(Request $request) {
     */
 
     //fetch date
-    $return = DB::select("call display_message('Hello 01')");
+    $return = DB::select("call display_message('Hello')");
     //log the request
     Log::info("API Response", [$return]);
     //return the data
