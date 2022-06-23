@@ -53,10 +53,15 @@ Route::get('/ping', function(Request $request) {
         Publisher Duration Bid
         PostbackURL
     */
-
+    /*$zipCode = $request->get('zipcode');
+    Log::info("Invalid access token.", [$accessToken]);
+        return response()->json([
+            'error' =>  'Invalid or empty zipcode.',
+            'accessToken' => $accessToken
+        ]);*/
     //fetch date
     $return = DB::select(
-        DB::raw("exec dbo.DTP_ProcessCall @zipcode = '99999'")
+        DB::raw("exec dbo.DTP_ProcessCall @zipcode = '91324'")
     );
     //log the request
     Log::info("API Response", [$return]);
