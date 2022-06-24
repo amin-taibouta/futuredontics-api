@@ -64,17 +64,26 @@ Route::get('/process-call', function(Request $request) {
             'accessToken' => $accessToken
         ]);
     }
-    //fetch date
-    $result = DB::select(
-        DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip" , [':zip', $zipCode])
-    );
+    try {
+        //fetch date
+        $result = DB::select(
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip" , [':zip', $zipCode])
+        );
 
-    //log the request
-    Log::info("API Response - processCall", [$result]);
-    //return the response
-    return response()->json([
-        'response' => $result
-    ]);
+        //log the request
+        Log::info("API Response - processCall", [$result]);
+        //return the response
+        return response()->json([
+            'response' => $result
+        ]);
+    } catch (\Throwable $th) {
+        //log the request
+        Log::info("API Response Error - processCall", [$th->getMessage()]);
+        //return the response
+        return response()->json([
+            'response' => ""
+        ]);
+    }
 });
 
 Route::post('/confirm-lead', function(Request $request) {
@@ -100,16 +109,24 @@ Route::post('/confirm-lead', function(Request $request) {
             'accessToken' => $accessToken
         ]);
     }
+    try {
+        //fetch date
+        $result = DB::select(
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = 1" , [':callId', $callId])
+        );
 
-    //fetch date
-    $result = DB::select(
-        DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = 1" , [':callId', $callId])
-    );
-
-    //log the request
-    Log::info("API Response - confirmLead", [$result]);
-    //return the response
-    return response()->json([
-        'response' => $result
-    ]); 
+        //log the request
+        Log::info("API Response - confirmLead", [$result]);
+        //return the response
+        return response()->json([
+            'response' => $result
+        ]); 
+    } catch (\Throwable $th) {
+        //log the request
+        Log::info("API Response Error - confirmLead", [$th->getMessage()]);
+        //return the response
+        return response()->json([
+            'response' => ""
+        ]); 
+    }
 });
