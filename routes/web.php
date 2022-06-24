@@ -32,9 +32,9 @@ Route::get('/', function(Request $request) {
     ]);
 });
 
-Route::get('/ping', function(Request $request) {
+Route::get('/process-call', function(Request $request) {
     //log the request
-    Log::info("API Request", $request->all());
+    Log::info("API Request - processCall", $request->all());
     //Verify the accessToken
     $accessToken = $request->get('accessToken');
     if (!in_array($accessToken, config('auth')['accessTokens'])) {
@@ -59,19 +59,57 @@ Route::get('/ping', function(Request $request) {
     $validator = Validator::make(['zip_code' => $request->get('zipcode')], ['zip_code' => 'required|regex:/\b\d{5}\b/']);
     if ($validator->fails()) {
         Log::info("Invalid or empty zipcode.", [$request->get('zipcode')]);
-            return response()->json([
-                'error' =>  'Invalid or empty zipcode.',
-                'accessToken' => $accessToken
-            ]);
+        return response()->json([
+            'error' =>  'Invalid or empty zipcode.',
+            'accessToken' => $accessToken
+        ]);
     }
     //fetch date
-    $return = DB::select(
+    $result = DB::select(
         DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip" , [':zip', $zipCode])
     );
+
     //log the request
-    Log::info("API Response", [$return]);
-    //return the data
+    Log::info("API Response - processCall", [$result]);
+    //return the response
     return response()->json([
-        'response' => $return
+        'response' => $result
     ]);
+});
+
+Route::post('/confirm-lead', function(Request $request) {
+    //log the request
+    Log::info("API Request - confirmLead", $request->all());
+    //Verify the accessToken
+    $accessToken = $request->get('accessToken');
+    if (!in_array($accessToken, config('auth')['accessTokens'])) {
+        //log the request
+        Log::info("Invalid access token.", [$accessToken]);
+        return response()->json([
+            'error' =>  'Invalid access token.',
+            'accessToken' => $accessToken
+        ]);
+    }
+
+    //validate callId
+    $callId = $request->get('callId');
+    if (empty($callId)) {
+        Log::info("Invalid or empty callId.", [$request->get('callId')]);
+        return response()->json([
+            'error' =>  'Empty callId.',
+            'accessToken' => $accessToken
+        ]);
+    }
+
+    //fetch date
+    $result = DB::select(
+        DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = 1" , [':callId', $callId])
+    );
+
+    //log the request
+    Log::info("API Response - confirmLead", [$result]);
+    //return the response
+    return response()->json([
+        'response' => $result
+    ]); 
 });
