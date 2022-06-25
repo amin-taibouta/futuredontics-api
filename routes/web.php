@@ -67,9 +67,15 @@ Route::get('/process-call', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip" , [':zip', $zipCode])
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip"), [':zip' => $zipCode]
         );
 
+        if (!empty($result[0])) {
+            $result = (array) $result[0];
+        } else {
+            $result = null;
+        }
+        
         //log the request
         Log::info("API Response - processCall", [$result]);
         //return the response
@@ -78,11 +84,13 @@ Route::get('/process-call', function(Request $request) {
         ]);
     } catch (\Throwable $th) {
         //log the request
-        Log::info("API Response Error - processCall", [$th->getMessage()]);
+        $hash = md5(time());
+        Log::info("API Response Error - processCall - $hash", [$th->getMessage()]);
         //return the response
         return response()->json([
-            'response' => ""
-        ]);
+            'error' => "API unknown error, please contact support",
+            'errorId' => $hash
+        ]); 
     }
 });
 
@@ -102,18 +110,26 @@ Route::post('/confirm-lead', function(Request $request) {
 
     //validate callId
     $callId = $request->get('callId');
-    if (empty($callId)) {
+    $success = $request->get('success');
+    if (empty($callId) || empty($success)) {
         Log::info("Invalid or empty callId.", [$request->get('callId')]);
         return response()->json([
-            'error' =>  'Empty callId.',
+            'error' =>  'Missing params, callId or success',
             'accessToken' => $accessToken
         ]);
     }
+
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = 1" , [':callId', $callId])
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success"), [':callId' => $callId, ':success' => $success]
         );
+
+        if (!empty($result[0])) {
+            $result = (array) $result[0];
+        } else {
+            $result = null;
+        }
 
         //log the request
         Log::info("API Response - confirmLead", [$result]);
@@ -123,10 +139,12 @@ Route::post('/confirm-lead', function(Request $request) {
         ]); 
     } catch (\Throwable $th) {
         //log the request
-        Log::info("API Response Error - confirmLead", [$th->getMessage()]);
+        $hash = md5(time());
+        Log::info("API Response Error - confirmLead - $hash", [$th->getMessage()]);
         //return the response
         return response()->json([
-            'response' => ""
+            'error' => "API unknown error, please contact support",
+            'errorId' => $hash
         ]); 
     }
 });
