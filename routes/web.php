@@ -40,10 +40,13 @@ Route::get('/process-call', function(Request $request) {
     if (!in_array($accessToken, config('auth')['accessTokens'])) {
         //log the request
         Log::info("Invalid access token.", [$accessToken]);
-        return response()->json([
-            'error' =>  'Invalid access token.',
-            'accessToken' => $accessToken
-        ]);
+        return response()->json(
+            [
+                'error' =>  'Invalid access token.',
+                'accessToken' => $accessToken
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     }
 
     /*
@@ -59,38 +62,48 @@ Route::get('/process-call', function(Request $request) {
     $validator = Validator::make(['zip_code' => $request->get('zipcode')], ['zip_code' => 'required|regex:/\b\d{5}\b/']);
     if ($validator->fails()) {
         Log::info("Invalid or empty zipcode.", [$request->get('zipcode')]);
-        return response()->json([
-            'error' =>  'Invalid or empty zipcode.',
-            'accessToken' => $accessToken
-        ]);
+        return response()->json(
+            [
+                'error' =>  'Invalid or empty param : zipcode',
+                'accessToken' => $accessToken
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     }
     try {
         //fetch date
-        $result = DB::select(
+        /*$result = DB::select(
             DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip"), [':zip' => $zipCode]
+        );*/
+
+        $result = DB::select(
+            DB::raw("CALL display_message_(:msg, :callid)"), [':msg' => "Hello world!", 'callid' => '0988585']
         );
 
         if (!empty($result[0])) {
             $result = (array) $result[0];
+            $result['PostbackURL'] = env('APP_URL') . '/confirm-lead?accessToken=' . $accessToken . '&callId=' . $result['callid'] . '&success=';
         } else {
             $result = null;
         }
-        
         //log the request
         Log::info("API Response - processCall", [$result]);
         //return the response
-        return response()->json([
-            'response' => $result
-        ]);
+        return response()->json(
+            ['response' => $result], 200, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     } catch (\Throwable $th) {
         //log the request
         $hash = md5(time());
         Log::info("API Response Error - processCall - $hash", [$th->getMessage()]);
         //return the response
-        return response()->json([
-            'error' => "API unknown error, please contact support",
-            'errorId' => $hash
-        ]); 
+        return response()->json(
+            [
+                'error' => "API unknown error, please contact support",
+                'errorId' => $hash
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        ); 
     }
 });
 
@@ -102,10 +115,13 @@ Route::post('/confirm-lead', function(Request $request) {
     if (!in_array($accessToken, config('auth')['accessTokens'])) {
         //log the request
         Log::info("Invalid access token.", [$accessToken]);
-        return response()->json([
-            'error' =>  'Invalid access token.',
-            'accessToken' => $accessToken
-        ]);
+        return response()->json(
+            [
+                'error' =>  'Invalid access token.',
+                'accessToken' => $accessToken
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     }
 
     //validate callId
@@ -113,10 +129,13 @@ Route::post('/confirm-lead', function(Request $request) {
     $success = $request->get('success');
     if (empty($callId) || empty($success)) {
         Log::info("Invalid or empty callId.", [$request->get('callId')]);
-        return response()->json([
-            'error' =>  'Missing params, callId or success',
-            'accessToken' => $accessToken
-        ]);
+        return response()->json(
+            [
+                'error' =>  'Missing params, callId or success',
+                'accessToken' => $accessToken
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     }
 
     try {
@@ -134,17 +153,21 @@ Route::post('/confirm-lead', function(Request $request) {
         //log the request
         Log::info("API Response - confirmLead", [$result]);
         //return the response
-        return response()->json([
-            'response' => $result
-        ]); 
+         //return the response
+        return response()->json(
+            ['response' => $result], 200, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );
     } catch (\Throwable $th) {
         //log the request
         $hash = md5(time());
         Log::info("API Response Error - confirmLead - $hash", [$th->getMessage()]);
         //return the response
-        return response()->json([
-            'error' => "API unknown error, please contact support",
-            'errorId' => $hash
-        ]); 
+        return response()->json(
+            [
+                'error' => "API unknown error, please contact support",
+                'errorId' => $hash
+            ],
+            400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
+        );  
     }
 });
