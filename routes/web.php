@@ -78,8 +78,8 @@ Route::get('/process-call', function(Request $request) {
 
         if (!empty($result[0])) {
             $result = (array) $result[0];
-            if (!empty($result['callid'])) {
-                $result['PostbackURL'] = env('APP_URL') . '/confirm-lead?accessToken=' . $accessToken . '&callId=' . $result['callid'] . '&success=';
+            if (!empty($result['CallId'])) {
+                $result['PostbackURL'] = env('APP_URL') . '/confirm-lead?accessToken=' . $accessToken . '&callId=' . $result['CallId'] . '&success=';
             }
         } else {
             $result = null;
