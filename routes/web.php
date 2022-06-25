@@ -72,17 +72,15 @@ Route::get('/process-call', function(Request $request) {
     }
     try {
         //fetch date
-        /*$result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip"), [':zip' => $zipCode]
-        );*/
-
         $result = DB::select(
-            DB::raw("CALL display_message_(:msg, :callid)"), [':msg' => "Hello world!", 'callid' => '0988585']
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip"), [':zip' => $zipCode]
         );
 
         if (!empty($result[0])) {
             $result = (array) $result[0];
-            $result['PostbackURL'] = env('APP_URL') . '/confirm-lead?accessToken=' . $accessToken . '&callId=' . $result['callid'] . '&success=';
+            if (!empty($result['callid'])) {
+                $result['PostbackURL'] = env('APP_URL') . '/confirm-lead?accessToken=' . $accessToken . '&callId=' . $result['callid'] . '&success=';
+            }
         } else {
             $result = null;
         }
