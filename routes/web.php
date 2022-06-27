@@ -139,7 +139,7 @@ Route::post('/confirm-lead', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success"), [':callId' => $callId, ':success' => $success]
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success"), [':callId' => $callId, ':success' => intval($success)]
         );
 
         if (!empty($result[0])) {
