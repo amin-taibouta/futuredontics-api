@@ -68,8 +68,6 @@ class Handler extends ExceptionHandler
             ],  400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT); 
         });
 
-        
-
         /*$this->renderable(function (Throwable $e, $request) {
             $hash = md5(time());
             $reflect = new \ReflectionClass($e);
