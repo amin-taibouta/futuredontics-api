@@ -39,7 +39,7 @@ Route::get('/process-call', function(Request $request) {
     $accessToken = $request->get('accessToken');
     if (!in_array($accessToken, config('auth')['accessTokens'])) {
         //log the request
-        Log::info("Invalid access token.", [$accessToken]);
+        Log::error("Invalid access token.", [$accessToken]);
         return response()->json(
             [
                 'error' =>  'Invalid access token.',
@@ -93,7 +93,7 @@ Route::get('/process-call', function(Request $request) {
     } catch (\Throwable $th) {
         //log the request
         $hash = md5(time());
-        Log::info("API Response Error - processCall - $hash", [$th->getMessage()]);
+        Log::error("API Response Error - processCall - $hash", [$th->getMessage()]);
         //return the response
         return response()->json(
             [
@@ -112,7 +112,7 @@ Route::post('/confirm-lead', function(Request $request) {
     $accessToken = $request->get('accessToken');
     if (!in_array($accessToken, config('auth')['accessTokens'])) {
         //log the request
-        Log::info("Invalid access token.", [$accessToken]);
+        Log::error("Invalid access token.", [$accessToken]);
         return response()->json(
             [
                 'error' =>  'Invalid access token.',
@@ -126,7 +126,7 @@ Route::post('/confirm-lead', function(Request $request) {
     $callId = $request->get('callId');
     $success = $request->get('success');
     if (empty($callId) || empty($success)) {
-        Log::info("Invalid or empty callId.", [$request->get('callId')]);
+        Log::error("Invalid or empty callId.", [$request->get('callId')]);
         return response()->json(
             [
                 'error' =>  'Missing params, callId or success',
@@ -158,7 +158,7 @@ Route::post('/confirm-lead', function(Request $request) {
     } catch (\Throwable $th) {
         //log the request
         $hash = md5(time());
-        Log::info("API Response Error - confirmLead - $hash", [$th->getMessage()]);
+        Log::error("API Response Error - confirmLead - $hash", [$th->getMessage()]);
         //return the response
         return response()->json(
             [

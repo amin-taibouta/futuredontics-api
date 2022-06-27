@@ -3,6 +3,11 @@
 namespace App\Exceptions;
 
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Route;
+
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -34,8 +39,45 @@ class Handler extends ExceptionHandler
      */
     public function register()
     {
-        $this->reportable(function (Throwable $e) {
-            //
+        /*$this->reportable(function (Throwable $e) {
+            $hash = md5(time());
+            Log::error("API Error - $hash", [$e->getMessage()]); 
+            $reflect = new \ReflectionClass($e);
+            return response()->json([
+                'error' => "API unexpected error : " . $reflect->getShortName(),
+                'errorId' => $hash
+            ],  400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT); 
+        });*/
+
+        $this->renderable(function (NotFoundHttpException $e, $request) {
+            $hash = md5(time());
+            $message = "API unexpected error, route not found : " . $request->path();
+            Log::error("API Error - $hash", [$message]); 
+            return response()->json([
+                'error' => $message,
+                'errorId' => $hash
+            ],  400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT); 
         });
+
+        $this->renderable(function (MethodNotAllowedHttpException $e, $request) {
+            $hash = md5(time());
+            Log::error("API Error - $hash", [$e->getMessage()]); 
+            return response()->json([
+                'error' => "API unexpected error : " . $e->getMessage(),
+                'errorId' => $hash
+            ],  400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT); 
+        });
+
+        
+
+        /*$this->renderable(function (Throwable $e, $request) {
+            $hash = md5(time());
+            $reflect = new \ReflectionClass($e);
+            Log::error("API Error - $hash", [$e->getMessage()]); 
+            return response()->json([
+                'error' => "API unexpected error : " . $reflect->getShortName(),
+                'errorId' => $hash
+            ],  400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT); 
+        });*/
     }
 }
