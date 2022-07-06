@@ -125,6 +125,7 @@ Route::post('/confirm-lead', function(Request $request) {
     //validate callId
     $callId = $request->get('callId');
     $success = $request->get('success');
+    $recordingUrl = $request->get('recordingUrl');
     if (empty($callId) || empty($success)) {
         Log::error("Invalid or empty callId.", [$request->get('callId')]);
         return response()->json(
@@ -139,8 +140,12 @@ Route::post('/confirm-lead', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success"), [':callId' => $callId, ':success' => intval($success)]
-        );
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success, @recordingUrl = :recordingUrl"), 
+            [
+                ':callId' => $callId, 
+                ':success' => intval($success),
+                ':recordingUrl' => $recordingUrl
+            ]);
 
         if (!empty($result[0])) {
             $result = (array) $result[0];
