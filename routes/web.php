@@ -157,7 +157,7 @@ Route::any('/confirm-lead', function(Request $request) {
         $recordingUrl = $request->get('recordingUrl');
     }
 
-    if (empty($callId) || empty($success)) {
+    if (empty($callId) ||  (int) $success > 1) {
         Log::error("Invalid or empty callId.", [$request->get('callId')]);
         return response()->json(
             [
