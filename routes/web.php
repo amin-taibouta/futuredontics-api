@@ -121,7 +121,7 @@ Route::any('/process-call', function(Request $request) {
     }
 });
 
-Route::post('/confirm-lead', function(Request $request) {
+Route::any('/confirm-lead', function(Request $request) {
     $params = null;
     if (!empty($request->getContent())) {
         $params = json_decode($request->getContent(), true);
