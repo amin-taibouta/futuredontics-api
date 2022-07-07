@@ -32,7 +32,12 @@ Route::get('/', function(Request $request) {
     ]);
 });
 
-Route::get('/process-call', function(Request $request) {
+Route::any('/process-call', function(Request $request) {
+    $params = null;
+    if (!empty($request->getContent())) {
+        $params = json_decode($request->getContent(), true);
+    }
+
     //log the request
     Log::info("API Request - processCall", $request->all());
     //Verify the accessToken
@@ -58,8 +63,14 @@ Route::get('/process-call', function(Request $request) {
         PostbackURL
     */
     //validate zip code
-    $zipCode = $request->get('zipcode');
-    $language = $request->get('language');
+    if (!empty($params)) {
+        $zipCode = $params["zipcode"] ?? null;
+        $language = $params["language"] ?? null;
+    } else {
+        $zipCode = $request->get('zipcode');
+        $language = $request->get('language');
+    }
+    
     if (!in_array($language, ['EN', 'ES'])) {
         $language = 'EN';
     }
