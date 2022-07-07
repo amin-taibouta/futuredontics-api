@@ -59,6 +59,11 @@ Route::get('/process-call', function(Request $request) {
     */
     //validate zip code
     $zipCode = $request->get('zipcode');
+    $language = $request->get('language');
+    if (!in_array($language, ['EN', 'ES'])) {
+        $language = 'EN';
+    }
+
     $validator = Validator::make(['zip_code' => $request->get('zipcode')], ['zip_code' => 'required|regex:/\b\d{5}\b/']);
     if ($validator->fails()) {
         Log::info("Invalid or empty zipcode.", [$request->get('zipcode')]);
@@ -73,7 +78,7 @@ Route::get('/process-call', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip"), [':zip' => $zipCode]
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip, @language = :language"), [':zip' => $zipCode, ':language' => $language]
         );
 
         if (!empty($result[0])) {
