@@ -122,6 +122,10 @@ Route::any('/process-call', function(Request $request) {
 });
 
 Route::post('/confirm-lead', function(Request $request) {
+    $params = null;
+    if (!empty($request->getContent())) {
+        $params = json_decode($request->getContent(), true);
+    }
     //log the request
     Log::info("API Request - confirmLead", $request->all());
     //Verify the accessToken
@@ -142,6 +146,17 @@ Route::post('/confirm-lead', function(Request $request) {
     $callId = $request->get('callId');
     $success = $request->get('success');
     $recordingUrl = $request->get('recordingUrl');
+
+    if (!empty($params)) {
+        $callId = $params["callId"] ?? null;
+        $success = $params["success"] ?? null;
+        $recordingUrl = $params["recordingUrl"] ?? null;
+    } else {
+        $callId = $request->get('callId');
+        $success = $request->get('success');
+        $recordingUrl = $request->get('recordingUrl');
+    }
+
     if (empty($callId) || empty($success)) {
         Log::error("Invalid or empty callId.", [$request->get('callId')]);
         return response()->json(
