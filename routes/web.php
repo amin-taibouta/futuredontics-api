@@ -143,18 +143,18 @@ Route::any('/confirm-lead', function(Request $request) {
     }
 
     //validate callId
-    $callId = $request->get('callId');
-    $success = $request->get('success');
-    $recordingUrl = $request->get('recordingUrl');
-
     if (!empty($params)) {
         $callId = $params["callId"] ?? null;
         $success = $params["success"] ?? null;
         $recordingUrl = $params["recordingUrl"] ?? null;
+        $callerId = $params["callerId"] ?? null;
+        $callLength = $params["callLength"] ?? null;
     } else {
         $callId = $request->get('callId');
         $success = $request->get('success');
         $recordingUrl = $request->get('recordingUrl');
+        $callerId = $request->get('callerId');
+        $callLength = $request->get('callLength');
     }
 
     if (empty($callId) ||  (int) $success > 1) {
@@ -171,11 +171,13 @@ Route::any('/confirm-lead', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success, @recording_url = :recordingUrl"), 
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success, @recording_url = :recordingUrl, @callerId = :callerId, @callLength = :callLength"), 
             [
                 ':callId' => $callId, 
                 ':success' => intval($success),
-                ':recordingUrl' => $recordingUrl
+                ':recordingUrl' => $recordingUrl,
+                ':callLength' => $callLength,
+                ':callerId' => $callerId
             ]);
 
         if (!empty($result[0])) {
