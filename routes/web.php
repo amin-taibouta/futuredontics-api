@@ -66,9 +66,11 @@ Route::any('/process-call', function(Request $request) {
     if (!empty($params)) {
         $zipCode = $params["zipcode"] ?? null;
         $language = $params["language"] ?? null;
+        $ringbaCallId = $params["ringbaCallId"] ?? null;
     } else {
         $zipCode = $request->get('zipcode');
         $language = $request->get('language');
+        $ringbaCallId = $request->get('ringbaCallId');
     }
     
     if (!in_array($language, ['EN', 'ES'])) {
@@ -89,7 +91,7 @@ Route::any('/process-call', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip, @language = :language"), [':zip' => $zipCode, ':language' => $language]
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip, @language = :language, @ringba_call_id = :ringba_call_id"), [':zip' => $zipCode, ':language' => $language, ':ringba_call_id' => $ringbaCallID]
         );
 
         if (!empty($result[0])) {
@@ -144,24 +146,26 @@ Route::any('/confirm-lead', function(Request $request) {
 
     //validate callId
     if (!empty($params)) {
-        $callId = $params["callId"] ?? null;
+        //$callId = $params["callId"] ?? null;
         $success = $params["success"] ?? null;
         $recordingUrl = $params["recordingUrl"] ?? null;
         $callerId = $params["callerId"] ?? null;
         $callLength = $params["callLength"] ?? null;
+        $ringbaCallId = $params["ringbaCallId"] ?? null;
     } else {
-        $callId = $request->get('callId');
+        //$callId = $request->get('callId');
         $success = $request->get('success');
         $recordingUrl = $request->get('recordingUrl');
         $callerId = $request->get('callerId');
         $callLength = $request->get('callLength');
+        $ringbaCallId = $request->get('ringbaCallId');
     }
 
-    if (empty($callId) ||  (int) $success > 1) {
-        Log::error("Invalid or empty callId.", [$request->get('callId')]);
+    if (empty($ringbaCallId) ||  (int) $success > 1) {
+        Log::error("Invalid or empty callId.", [$request->get('ringbaCallId')]);
         return response()->json(
             [
-                'error' =>  'Missing params, callId or success',
+                'error' =>  'Missing params, ringbaCallId or success',
                 'accessToken' => $accessToken
             ],
             400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
@@ -173,7 +177,7 @@ Route::any('/confirm-lead', function(Request $request) {
         $result = DB::select(
             DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success, @recording_url = :recordingUrl, @caller_id = :callerId, @call_length = :callLength"), 
             [
-                ':callId' => $callId, 
+                ':callId' => $ringbaCallId, 
                 ':success' => intval($success),
                 ':recordingUrl' => $recordingUrl,
                 ':callLength' => $callLength,
