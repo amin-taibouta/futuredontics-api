@@ -91,7 +91,7 @@ Route::any('/process-call', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip, @language = :language, @ringba_call_id = :ringba_call_id"), [':zip' => $zipCode, ':language' => $language, ':ringba_call_id' => $ringbaCallID]
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ProcessCall @zipcode = :zip, @language = :language, @ringba_call_id = :ringba_call_id"), [':zip' => $zipCode, ':language' => $language, ':ringba_call_id' => $ringbaCallId]
         );
 
         if (!empty($result[0])) {
