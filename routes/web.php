@@ -177,7 +177,7 @@ Route::any('/confirm-lead', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @ringba_call_id = :ringbaCallId, @18d_call_id = :18d_call_id, @success = :success, @recording_url = :recordingUrl, @caller_id = :callerId, @call_length = :callLength"), 
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @ringba_call_id = :ringba_call_id, @18d_call_id = :18d_call_id, @success = :success, @recording_url = :recordingUrl, @caller_id = :callerId, @call_length = :callLength"), 
             [
                 ':18d_call_id' => $callId, 
                 ':ringba_call_id' => $ringbaCallId, 
