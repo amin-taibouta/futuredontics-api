@@ -143,7 +143,7 @@ Route::any('/confirm-lead', function(Request $request) {
             400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
         );
     }
-
+    $callId = $ringbaCallId = null;
     //validate callId
     if (!empty($params)) {
         //$callId = $params["callId"] ?? null;
@@ -152,6 +152,7 @@ Route::any('/confirm-lead', function(Request $request) {
         $callerId = $params["callerId"] ?? null;
         $callLength = $params["callLength"] ?? null;
         $ringbaCallId = $params["ringbaCallId"] ?? null;
+        $callId = $params["callId"] ?? null;
     } else {
         //$callId = $request->get('callId');
         $success = $request->get('success');
@@ -159,13 +160,14 @@ Route::any('/confirm-lead', function(Request $request) {
         $callerId = $request->get('callerId');
         $callLength = $request->get('callLength');
         $ringbaCallId = $request->get('ringbaCallId');
+        $callId = $request->get('callId');
     }
 
-    if (empty($ringbaCallId) ||  (int) $success > 1) {
+    if ((empty($ringbaCallId) && empty($callId))  ||  (int) $success > 1) {
         Log::error("Invalid or empty callId.", [$request->get('ringbaCallId')]);
         return response()->json(
             [
-                'error' =>  'Missing params, ringbaCallId or success',
+                'error' =>  'Missing params, ringbaCallId or callId or success',
                 'accessToken' => $accessToken
             ],
             400, [], JSON_UNESCAPED_SLASHES|JSON_PRETTY_PRINT
@@ -175,9 +177,10 @@ Route::any('/confirm-lead', function(Request $request) {
     try {
         //fetch date
         $result = DB::select(
-            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @callid = :callId, @success = :success, @recording_url = :recordingUrl, @caller_id = :callerId, @call_length = :callLength"), 
+            DB::raw("SET NOCOUNT ON; exec dbo.DTP_ConfirmLead @ringba_call_id = :ringbaCallId, @18d_call_id = :18d_call_id, @success = :success, @recording_url = :recordingUrl, @caller_id = :callerId, @call_length = :callLength"), 
             [
-                ':callId' => $ringbaCallId, 
+                ':18d_call_id' => $callId, 
+                ':ringba_call_id' => $ringbaCallId, 
                 ':success' => intval($success),
                 ':recordingUrl' => $recordingUrl,
                 ':callLength' => $callLength,
