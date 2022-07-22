@@ -108,8 +108,8 @@ return [
 
     'password_timeout' => 10800,
     'accessTokens' => [
-        //'f8e20fddd3e45ed2936ab88dd39d7ae2466b21ed',
-        'fab19abfc186474354d059987002dfd06da3ddce',
-        'b888b29826bb53dc531437e723738383d8339b56'
+        //'f8e20fddd3e45ed2936ab88dd39d7ae2466b21ed', // Jake.Ksendzov@joineasyhealth.com
+        'fab19abfc186474354d059987002dfd06da3ddce', // sfitzgerald@soleocommunications.com
+        'b888b29826bb53dc531437e723738383d8339b56' // Ringba
     ]
 ];
