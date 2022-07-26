@@ -111,7 +111,7 @@ Route::any('/process-call', function(Request $request) {
     } catch (\Throwable $th) {
         //log the request
         $hash = md5(time());
-        Log::error("API Response Error - processCall - $hash", [$th->getMessage()]);
+        Log::error("API Response Error - processCall - ". $hash, [$th->getMessage()]);
         //return the response
         return response()->json(
             [
